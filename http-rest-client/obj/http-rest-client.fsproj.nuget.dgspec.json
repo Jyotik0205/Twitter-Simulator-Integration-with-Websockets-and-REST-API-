@@ -1,0 +1,102 @@
+{
+  "format": 1,
+  "restore": {
+    "C:\\Users\\jyotik\\Downloads\\curl-7.73.0_1-win64-mingw\\curl-7.73.0-win64-mingw\\bin\\http-rest-client\\http-rest-client.fsproj": {}
+  },
+  "projects": {
+    "C:\\Users\\jyotik\\Downloads\\curl-7.73.0_1-win64-mingw\\curl-7.73.0-win64-mingw\\bin\\http-rest-client\\http-rest-client.fsproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\jyotik\\Downloads\\curl-7.73.0_1-win64-mingw\\curl-7.73.0-win64-mingw\\bin\\http-rest-client\\http-rest-client.fsproj",
+        "projectName": "http-rest-client",
+        "projectPath": "C:\\Users\\jyotik\\Downloads\\curl-7.73.0_1-win64-mingw\\curl-7.73.0-win64-mingw\\bin\\http-rest-client\\http-rest-client.fsproj",
+        "packagesPath": "C:\\Users\\jyotik\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\jyotik\\Downloads\\curl-7.73.0_1-win64-mingw\\curl-7.73.0-win64-mingw\\bin\\http-rest-client\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\jyotik\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "netcoreapp3.1"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netcoreapp3.1": {
+            "targetAlias": "netcoreapp3.1",
+            "projectReferences": {}
+          }
+        }
+      },
+      "frameworks": {
+        "netcoreapp3.1": {
+          "targetAlias": "netcoreapp3.1",
+          "dependencies": {
+            "Akka": {
+              "target": "Package",
+              "version": "[1.4.12, )",
+              "generatePathProperty": true
+            },
+            "Akka.FSharp": {
+              "target": "Package",
+              "version": "[1.4.12, )",
+              "generatePathProperty": true
+            },
+            "FSharp.Core": {
+              "target": "Package",
+              "version": "[5.0.0, )",
+              "generatePathProperty": true
+            },
+            "FSharp.Data": {
+              "target": "Package",
+              "version": "[3.3.3, )",
+              "generatePathProperty": true
+            },
+            "FSharp.Data.Json": {
+              "target": "Package",
+              "version": "[1.0.0, )",
+              "generatePathProperty": true
+            },
+            "Hopac": {
+              "target": "Package",
+              "version": "[0.3.23, )",
+              "generatePathProperty": true
+            },
+            "Http.fs": {
+              "target": "Package",
+              "version": "[5.2.1, )",
+              "generatePathProperty": true
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[3.1.10, 3.1.10]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Host.win-x64",
+              "version": "[3.1.10, 3.1.10]"
+            }
+          ],
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.101\\RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}
