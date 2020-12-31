@@ -1,0 +1,8 @@
+{
+  "runtimeOptions": {
+    "additionalProbingPaths": [
+      "C:\\Users\\jyotik\\.dotnet\\store\\|arch|\\|tfm|",
+      "C:\\Users\\jyotik\\.nuget\\packages"
+    ]
+  }
+}

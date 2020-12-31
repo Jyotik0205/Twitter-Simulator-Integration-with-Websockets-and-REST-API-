@@ -1,0 +1,121 @@
+﻿<!DOCTYPE html>
+
+<meta charset="utf-8" />
+
+<title>WebSocket Test</title>
+
+<script language="javascript" type="text/javascript">
+
+  var wsUri = "ws://localhost:8080/websocket";
+  var output;
+  var inp;
+  function init()
+  {
+    output = document.getElementById("output");
+    tweets=document.getElementById("tweets");
+    
+    //testWebSocket();
+  }
+
+  function testWebSocket()
+  { 
+    var pre = document.createElement("p");
+    pre.id="tweet";
+    pre.style.wordWrap = "break-word";
+    tweets.appendChild(pre);
+    websocket = new WebSocket(wsUri);
+    websocket.onopen = function(evt) { onOpen(evt) };
+    websocket.onclose = function(evt) { onClose(evt) };
+    websocket.onmessage = function(evt) { onMessage(evt) };
+   // websocket.updateTweet = function(evt) { updateTweet(evt) };
+    websocket.onerror = function(evt) { onError(evt) };
+
+  }
+
+  function onOpen(evt)
+  {
+    writeToScreen("CONNECTED");
+    inp = document.getElementById("loginid");
+    
+    alert(inp.value)
+    doSend(" "+inp.value);
+  }
+
+  function onClose(evt)
+  {
+    writeToScreen("DISCONNECTED");
+  }
+
+  function onMessage(evt)
+  { var tweet=JSON.parse(evt.data);
+    //updateTweet('<span style="color: blue;">From: ' + tweet[i].From+ '  Message:'+tweet[i].Message+' Mentions:'+tweet[i].Mention+' Hashtag:#'+tweet[i].Hashtag+'</span>');
+     //writeToScreen('<span style="color: red;">Number of Tweets: ' + tweet.length.toString()+'</span>');
+     var r='';
+     for(var i=0; i<tweet.length;i++){
+     r=r+'<p style="color: red;">From: ' + tweet[i].From+'</p>' +'<p style="color: blue;">'+'  Message:'+tweet[i].Message+'</p><p style="color: green;">'+ 'Mentions:'+tweet[i].Mention+'</p><p style="color: yellow;">'+' Hashtag:#'+tweet[i].Hashtag+'  '+'</p>';
+    
+     }
+     utweet(r);
+
+  //   writeToScreen('<span style="color: red;">End' +'</span>');
+   // websocket.close();
+  }
+
+  function onError(evt)
+  {
+    writeToScreen('<span style="color: red;">ERROR:</span> ' + evt.data);
+  }
+
+  function doSend(message)
+  {
+    writeToScreen("SENT: " + message); 
+    websocket.send(message);
+  }
+
+  function writeToScreen(message)
+  {
+    var pre = document.createElement("p");
+    pre.style.wordWrap = "break-word";
+    pre.innerHTML = message;
+    output.appendChild(pre);
+  }
+  function utweet(message){
+    var twe=document.getElementById("tweets");
+    twe.innerHTML=message;
+    var s=twe.getElementsByTagName("p");
+    s.innerHTML=message;
+    
+  }
+  function closeme(){
+    websocket.close();
+    var twe=document.getElementById("tweets");
+    twe.innerHTML="";
+  }
+//  function updateTweet(evt)
+//  {
+//    var tweet=JSON.parse(evt.data);
+//    var lastNum = tweet.length-1;
+//    var tamp = () => {
+//      return(
+//        <div>
+//        <div style="color: red;">Number of Tweets: ${tweet.length}</div>
+//        <div style="color: blue;">From: ${tweet[lastNum].From} Message: ${tweet[lastNum].Message} Mentions: ${tweet[lastNum].Mention} Hashtag:# ${tweet[lastNum].Hashtag}</div>
+//        </div>
+//       );}
+//    ReactDOM.render(tamp, document.getElementById('updates'));
+//   //document.getElementById("tweets").getElementsByTagName("p")
+//  // tw.innerHTML=tweetlist;
+
+//  }
+  window.addEventListener("load", init, false);
+
+</script>
+
+<h2>My Twitter Page</h2>
+<label for="fname">Login ID:</label>
+  <input type="text" id="loginid" name="fname">
+  <input type="submit" value="Login" onclick="testWebSocket()">
+  <input type="submit" value="Logout" onclick="closeme()">
+<div id="updates"></div>
+<div id="output"></div>
+<div id="tweets"></div>

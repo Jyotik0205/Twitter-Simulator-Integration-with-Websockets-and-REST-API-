@@ -1,0 +1,199 @@
+namespace MyWebApi.Controllers
+
+open System
+open System.Collections.Generic
+open System.Linq
+open System.Threading.Tasks
+open System.Collections.Concurrent
+open System.Data
+open Microsoft.AspNetCore.Mvc
+open Microsoft.Extensions.Logging
+open MyWebApi
+open Akka.Actor
+open Akka.FSharp
+module UserTable=
+    let dt = new DataTable()
+    let dc1 = new DataColumn("ID")
+    let dc2 = new DataColumn("F_NAME")
+    let dc3 = new DataColumn("L_NAME")
+    let dc4 = new DataColumn("password")
+    dt.Columns.Add(dc1)
+    dt.Columns.Add(dc2)
+    dt.Columns.Add(dc3)
+    dt.Columns.Add(dc4)
+    let subs_master = new DataTable()
+    let subs_col1 = new DataColumn("subscriberId")
+    let subs_col2 = new DataColumn("subscribee")
+    subs_master.Columns.Add(subs_col1)
+    subs_master.Columns.Add(subs_col2)
+    let tweet_master=new DataTable()
+    let tweet_col1 = new DataColumn("From")
+    let tweet_col2 = new DataColumn("Mention")
+    let tweet_col3 = new DataColumn("Hashtag")
+    let tweet_col4 = new DataColumn("Message")
+    tweet_master.Columns.Add(tweet_col1)
+    tweet_master.Columns.Add(tweet_col2)
+    tweet_master.Columns.Add(tweet_col3)
+    tweet_master.Columns.Add(tweet_col4)
+    let tweetconcHash=new ConcurrentDictionary<string,Collections.Generic.List<Tweet>>();
+    let tweetconcMent=new ConcurrentDictionary<int,Collections.Generic.List<Tweet>>();
+    let tweetconcFrom=new ConcurrentDictionary<int,Collections.Generic.List<Tweet>>();
+    let usertable=new ConcurrentDictionary<int,int>();
+    let usertable=new ConcurrentDictionary<int,int>();
+    let subsicriptionTable=new System.Collections.Generic.List<System.Collections.Generic.List<int>>();
+    let mutable c=0
+type Tmessage=
+        |Readtweet of string
+type Wmesage=
+        |Write of User
+        |Subs of Subscribe  
+[<ApiController>]
+[<Route("[controller]")>]
+type WeatherForecastController (logger : ILogger<WeatherForecastController>) =
+    inherit ControllerBase()
+    let spawn_tweet_reader system name=
+              spawn system ("R_Actor"+string(name))<|
+                      fun mailbox->
+                          let rec loop()=
+                                actor{
+                                       let! msg=mailbox.Receive()
+                                       match msg with
+                                       |Readtweet qrystr-> printfn ""                           
+                                          
+                                       return!loop()
+                                }
+                          loop()
+    let spawn_user_writer system name=
+              spawn system ("W_Actor"+string(name))<|
+                      fun mailbox->
+                          let rec loop()=
+                                actor{
+                                       let! msg=mailbox.Receive()
+                                       match msg with
+                                       |Write user-> UserTable.dt.Rows.Add(user.Id,user.Fname,user.Lname,user.Password)|>ignore
+                                       |Subs data->   UserTable.subs_master.Rows.Add(data.subscriberId,data.subscribee)|>ignore                              
+                                          
+                                       return!loop()
+                                }
+                          loop()
+    
+    let sys=ActorSystem.Create("Writer")
+    let a=spawn_user_writer sys 1|>ignore
+            
+    
+    [<HttpGet>]
+    member __.Get() : int =
+        UserTable.dt.Rows.Count
+    [<Route("sno")>]    
+    [<HttpGet>]
+    member __.Getsno() : int =
+        UserTable.dt.Rows.Count
+    [<Route("search/mention/{id}")>]
+    [<HttpGet>]
+    member __.Get(id :string) : list<Tweet> =
+       printfn "Searching For %s" id
+    //    let qstr=String.Format("Mention = '{0}'",id);
+    //    let k=UserTable.tweet_master.Select(qstr)
+    //    let mutable a=[]
+       
+    //    for i=1 to k.Length do
+    //        let t=k.[i-1]
+    //        let u:Tweet={From= string(t.[0])
+    //                     Mention= string(t.[1])
+    //                     Hashtag=string(t.[2])
+    //                     Message=string(t.[3])}
+         
+    //        a  <- [u] |> List.append a
+    //    printfn "Query String is %s" qstr
+    //    printfn "Size of Array %d" k.Length
+       let a=UserTable.tweetconcMent.TryGetValue(id)|>ignore 
+       a
+    [<Route("search/hashtag/{id}")>]
+    [<HttpGet>]
+    member __.GetList(id :string) : list<Tweet> =
+       printfn "Searching For %s" id
+       let qstr=String.Format("Hashtag = '{0}'",id);
+       let k=UserTable.tweet_master.Select(qstr)
+       let mutable a=[]
+       
+       for i=1 to k.Length do
+           let t=k.[i-1]
+           let u:Tweet={From= string(t.[0])
+                        Mention= string(t.[1])
+                        Hashtag=string(t.[2])
+                        Message=string(t.[3])}
+         
+           a  <- [u] |> List.append a
+       printfn "Query String is %s" qstr
+       printfn "Size of Array %d" k.Length
+       a  
+    [<Route("subscribes/{id}")>]
+    [<HttpGet>]
+    member __.GetsubsList(id :string) : list<Subscribe> =
+       printfn "Searching For %s" id
+       let qstr=String.Format("subscribee = '{0}'",id);
+       let k=UserTable.subs_master.Select(qstr)
+       let mutable a=[]
+       
+       for i=1 to k.Length do
+           let t=k.[i-1]
+           let u:Subscribe={  subscriberId= string(t.[0])
+                              subscribee= string(t.[1])
+                           }
+         
+           a  <- [u] |> List.append a
+       printfn "Query String is %s" qstr
+       printfn "Size of Array %d" k.Length
+       a    
+    [<Route("search/subscribes/{id}")>]
+    [<HttpGet>]
+    member __.GetsubstweetList(id :string) : list<Tweet> =
+       let slist=__.GetsubsList(id) 
+       let mutable a=[]
+       printfn "Searching For %s" id
+       for subs in slist do
+        let qstr=String.Format("From = '{0}'",subs.subscriberId);
+        printfn "query string is %s"qstr
+        let k=UserTable.tweet_master.Select(qstr)
+        printfn "Size of query is %d" k.Length
+
+        for i=1 to k.Length do
+           let t=k.[i-1]
+           let u:Tweet={From= string(t.[0])
+                        Mention= string(t.[1])
+                        Hashtag=string(t.[2])
+                        Message=string(t.[3])}
+         
+           a  <- [u] |> List.append a
+       a    
+     [<HttpPost>]
+     member _.Post(data: User): int=
+          let writer=sys.ActorSelection("akka://Writer/user/W_Actor1")
+          writer.Tell(Write data);
+          0
+     [<Route("subscribe")>]
+     [<HttpPost>]
+     member _.Post(data: Subscribe): int=
+      // DataRow workRow = UserTable.dt.NewRow(); 
+        let writer=sys.ActorSelection("akka://Writer/user/W_Actor1")
+        writer.Tell(Subs data);
+        0
+     [<Route("tweet")>]
+     [<HttpPost>]
+     member _.Post(data: Tweet): int=
+      // DataRow workRow = UserTable.dt.NewRow(); 
+       let k=UserTable.tweet_master.Rows.Add(data.From,data.Mention,data.Hashtag,data.Message);
+       UserTable.tweet_master.Rows.Count;
+       
+     [<Route("retweet")>]  
+     [<HttpPost>]
+     member _.ReTweet(data: Tweet): int=
+      // DataRow workRow = UserTable.dt.NewRow(); 
+       let k=UserTable.tweet_master.Rows.Add(data.From,data.Mention,data.Hashtag,data.Message);
+       UserTable.tweet_master.Rows.Count;
+
+
+         <PackageReference Include="package.mscorlib" Version="1.0.1"/>
+         <PackageReference Include="WebSharper" Version="4.7.0.423"/>
+         <PackageReference Include="WebSharper.AspNetCore.WebSocket" Version="4.7.0.157"/>
+         <PackageReference Include="WebSharper.UI" Version="4.7.0.231"/>
